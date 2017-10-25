@@ -26,8 +26,8 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
     public static final int TICK = 20;
     public static final int FPS = 1000 / TICK;
 
-    public static int width = Toolkit.getDefaultToolkit().getScreenSize().width;
-    public static int height = Toolkit.getDefaultToolkit().getScreenSize().height;
+    public static int width = Toolkit.getDefaultToolkit().getScreenSize().width - (Toolkit.getDefaultToolkit().getScreenSize().width % 100);
+    public static int height = Toolkit.getDefaultToolkit().getScreenSize().height - (Toolkit.getDefaultToolkit().getScreenSize().height % 100);
     public JFrame frame;
     public Random randy = new Random();
     public boolean startScreen = true;
@@ -55,118 +55,91 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
     public boolean easy = false;
     public boolean medium = false;
     public boolean hard = false;
-    Font font = new Font("Arial",Font.BOLD,25);
+    Font font = new Font("Arial", Font.BOLD, 25);
 
     Timer timer = new Timer(20/*change to vary frequency*/, new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    tick++;
-                    if (gameScreen && !gameOver) {
-                        if (easy) {
-                            if (tick % (FPS * 0.1) == 0) {
-                                if (up) {
-                                    y1 -= 25;
-                                }
-                                if (left) {
-                                    x1 -= 25;
-                                }
-                                if (down) {
-                                    y1 += 25;
-                                }
-                                if (right) {
-                                    x1 += 25;
-                                }
-                                for (int i = 0; i < box.size(); i++) {
-                                    if (i == 0) {
-                                        if (box.get(i).intersects(wallLeft) || box.get(i).intersects(wallTop) || box.get(i).intersects(wallRight) || box.get(i).intersects(wallBottom)) {
-                                            gameOver = true;
-                                        }
-                                        for (int j = 3; j < box.size(); j++) {
-                                            if (box.get(0).intersects(box.get(j))) {
-                                                gameOver = true;
-                                            }
-                                        } //Check collision with other parts of the snake
-
-                                    }
-                                } //End of i =0
-                                for (int i = box.size() - 1; i > 0; i--) {
-                                    box.get(i).setBounds(box.get(i - 1).getBounds());
-                                }
-                            }
+        public void actionPerformed(ActionEvent e) {
+            tick++;
+            if (gameScreen && !gameOver) {
+                if (easy) {
+                    if (tick % (FPS * 0.1) == 0) {
+                        if (up) {
+                            y1 -= 25;
                         }
-                        if (medium) {
-                            if (tick % (FPS * 0.03) == 0) {
-                                if (up) {
-                                    y1 -= 25;
-                                }
-                                if (left) {
-                                    x1 -= 25;
-                                }
-                                if (down) {
-                                    y1 += 25;
-                                }
-                                if (right) {
-                                    x1 += 25;
-                                }
-                                for (int i = 0; i < box.size(); i++) {
-                                    if (i == 0) {
-                                        if (box.get(i).intersects(wallLeft) || box.get(i).intersects(wallTop) || box.get(i).intersects(wallRight) || box.get(i).intersects(wallBottom)) {
-                                            gameOver = true;
-                                        }
-                                        for (int j = 3; j < box.size(); j++) {
-                                            if (box.get(0).intersects(box.get(j))) {
-                                                gameOver = true;
-                                            }
-                                        } //Check collision with other parts of the snake
-
-                                    }
-                                } //End of i =0
-                                for (int i = box.size() - 1; i > 0; i--) {
-                                    box.get(i).setBounds(box.get(i - 1).getBounds());
-                                }
-                            }
+                        if (left) {
+                            x1 -= 25;
                         }
-                        if (hard) {
-                            if (tick % (FPS * 0.02) == 0) {
-                                if (up) {
-                                    y1 -= 25;
-                                }
-                                if (left) {
-                                    x1 -= 25;
-                                }
-                                if (down) {
-                                    y1 += 25;
-                                }
-                                if (right) {
-                                    x1 += 25;
-                                }
-                                for (int i = 0; i < box.size(); i++) {
-                                    if (i == 0) {
-                                        if (box.get(i).intersects(wallLeft) || box.get(i).intersects(wallTop) || box.get(i).intersects(wallRight) || box.get(i).intersects(wallBottom)) {
-                                            gameOver = true;
-                                        }
-                                        for (int j = 3; j < box.size(); j++) {
-                                            if (box.get(0).intersects(box.get(j))) {
-                                                gameOver = true;
-                                            }
-                                        } //Check collision with other parts of the snake
-
-                                    }
-                                } //End of i =0
-                                for (int i = box.size() - 1; i > 0; i--) {
-                                    box.get(i).setBounds(box.get(i - 1).getBounds());
-                                }
-                            }
+                        if (down) {
+                            y1 += 25;
                         }
-
+                        if (right) {
+                            x1 += 25;
+                        }
+                        collided();
                     }
-                    //what the timer does every run through
                 }
+                if (medium) {
+                    if (tick % (FPS * 0.03) == 0) {
+                        if (up) {
+                            y1 -= 25;
+                        }
+                        if (left) {
+                            x1 -= 25;
+                        }
+                        if (down) {
+                            y1 += 25;
+                        }
+                        if (right) {
+                            x1 += 25;
+                        }
+                        collided();
+                    }
+                }
+                if (hard) {
+                    if (tick % (FPS * 0.0025) == 0) {
+                        if (up) {
+                            y1 -= 25;
+                        }
+                        if (left) {
+                            x1 -= 25;
+                        }
+                        if (down) {
+                            y1 += 25;
+                        }
+                        if (right) {
+                            x1 += 25;
+                        }
+                        collided();
+                    }
+                }
+
             }
+            //what the timer does every run through
+        }
+    }
     );
+
+    public void collided() {
+        for (int i = 0; i < box.size(); i++) {
+            if (i == 0) {
+                if (box.get(i).intersects(wallLeft) || box.get(i).intersects(wallTop) || box.get(i).intersects(wallRight) || box.get(i).intersects(wallBottom)) {
+                    gameOver = true;
+                }
+                for (int j = 3; j < box.size(); j++) {
+                    if (box.get(0).intersects(box.get(j))) {
+                        gameOver = true;
+                    }
+                } //Check collision with other parts of the snake
+            }
+        } //End of i = 0 
+        for (int i = box.size() - 1; i > 0; i--) {
+            box.get(i).setBounds(box.get(i - 1).getBounds());
+        }
+    }
 
     public Snake(String title) {
         frame = new JFrame(title);
-        frame.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        frame.setSize(width, height);
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
@@ -217,29 +190,22 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
 
                 }
             }
-//            g.setColor(Color.black);
-//            for (int i = 0; i < width / 25; i++) {
-//                g.drawLine(i * 25, 0, i * 25, height);
-//            }
-//            for (int i = 0; i < height / 25; i++) {
-//                g.drawLine(0, i * 25, width, i * 25);
-//            }
         } //End of game Screen
         if (gameOver) {
-            System.out.println("Game Over");
+            //System.out.println("Game Over");
         }
         repaint();
     }
 
     public void gameScreenBackground(Graphics g) {
         g.setColor(Color.black);
-        g.fillRect(0, 0, width, height);
+        g.fillRect(0, 0, width, height - 25); //Background
         //g.setColor(neon);
-        g.setColor(new Color(155,48,255));
+        g.setColor(new Color(155, 48, 255));
         g.fillRect(0, 0, width, 25); //Top Wall
-        g.fillRect(0, 0, 25, height); //Left Wall 
+        g.fillRect(0, 0, 25, height - 25); //Left Wall 
         g.fillRect(0, height - 50, width, 25); //Bottom Wall
-        g.fillRect(width - 25, 0, 25, height); //Right Wall
+        g.fillRect(width - 25, 0, 25, height - 25); //Right Wall
         g.setColor(Color.black);
         g.drawString("Score: " + score, rectWidth, rectWidth);
     }
