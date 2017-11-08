@@ -10,9 +10,13 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
-import javax.swing.ImageIcon;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.sound.sampled.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -33,7 +37,7 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
     public boolean startScreen = true;
     public boolean gameScreen = false;
     public boolean gameOver = false;
-    public boolean enemy = false;
+    public boolean enemy = false; //Is an enemy on the screen?
     public boolean up = false;
     public boolean right = true;
     public boolean down = false;
@@ -44,7 +48,7 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
     public Color neon = new Color(0, 255, 0);
     public int x1 = 0;
     public int y1 = 0;
-    public ArrayList<Rectangle> box = new ArrayList();
+    public ArrayList<Rectangle> box = new ArrayList(); //Snake
     public Rectangle wallLeft = new Rectangle(0, 0, 25, height);
     public Rectangle wallTop = new Rectangle(0, 0, width, 25);
     public Rectangle wallBottom = new Rectangle(0, height - 50, width, 50);
@@ -167,9 +171,9 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
             gameScreenBackground(g);
             box.get(0).setBounds(width / 2 + x1, height / 2 + y1, rectWidth, rectWidth);
             for (int i = 0; i < box.size(); i++) {
-                g.setColor(neon);
+                g.setColor(neon); //Color of snake
                 g.fillRect(box.get(i).x, box.get(i).y, rectWidth, rectWidth);
-                g.setColor(Color.black);
+                g.setColor(Color.black); //Outline of snake
                 g.drawRect(box.get(i).x, box.get(i).y, rectWidth, rectWidth);
             }
             if (!enemy) {
@@ -186,6 +190,11 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
                 enemyRect.setBounds(xEnemy, yEnemy, rectWidth, rectWidth);
                 if (box.get(0).intersects(enemyRect)) {
                     enemy = false;
+                    try {
+                        playScoreSound();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Snake.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     score++;
 
                 }
@@ -200,7 +209,6 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
     public void gameScreenBackground(Graphics g) {
         g.setColor(Color.black);
         g.fillRect(0, 0, width, height - 25); //Background
-        //g.setColor(neon);
         g.setColor(new Color(155, 48, 255));
         g.fillRect(0, 0, width, 25); //Top Wall
         g.fillRect(0, 0, 25, height - 25); //Left Wall 
@@ -208,6 +216,25 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
         g.fillRect(width - 25, 0, 25, height - 25); //Right Wall
         g.setColor(Color.black);
         g.drawString("Score: " + score, rectWidth, rectWidth);
+    }
+    
+    /**
+     * Play a sound for when a food piece is eaten
+     * @throws java.io.IOException
+     * TODO add multithreading for sound?
+    */
+    public void playScoreSound() throws IOException {
+        try {
+            // Open an audio input stream.
+            URL url = this.getClass().getResource("sounds/score.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
+            // Open audio clip and load samples from the audio input stream.
+            // Get a sound clip resource.
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+        }
     }
 
     @Override
