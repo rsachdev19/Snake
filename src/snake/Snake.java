@@ -24,7 +24,7 @@ import javax.swing.Timer;
 public class Snake extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
 
     public static void main(String[] args) {
-        Snake project = new Snake("Title");
+        Snake project = new Snake("Snake");
     }
     public static int tick;
     public static final int TICK = 20;
