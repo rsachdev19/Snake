@@ -121,6 +121,7 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
         box.add(new Rectangle(width / 2 - 2 * BLOCK_LENGTH, height / 2, BLOCK_LENGTH, BLOCK_LENGTH));
     }
 
+    @Override
     public void paint(Graphics g) {
         super.paint(g);
         g.setFont(font);
