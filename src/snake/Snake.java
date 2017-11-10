@@ -39,10 +39,8 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
     public boolean gameScreen = false;
     public boolean gameOver = false;
     public boolean enemy = false; //Is an enemy on the screen?
-    public boolean up = false;
-    public boolean right = true;
-    public boolean down = false;
-    public boolean left = false;
+    public Direction desiredDirection = Direction.right;
+    public Direction currentDirection = Direction.right;
     public int xEnemy = 0;
     public int yEnemy = 0;
     public static final int BLOCK_LENGTH = 25;
@@ -60,22 +58,27 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
     Font font = new Font("Arial", Font.BOLD, 25);
     public static final int SCORE_TO_GROW = 2;
     //public static final int BLOCK_LENGTH = 25;
+    
+    private URL url = this.getClass().getResource("sounds/score.wav");
+    private AudioInputStream audioIn;
+    private Clip clip;
 
     Timer timer = new Timer(20/*change to vary frequency*/, new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             tick++;
             if (gameScreen && !gameOver) {
                 if (tick % (FPS * DIFFICULTY) == 0) {
-                    if (up) {
+                    if (desiredDirection == Direction.up) {
+                        currentDirection = Direction.up;
                         y1 -= BLOCK_LENGTH;
-                    }
-                    if (left) {
+                    }else if (desiredDirection == Direction.left) {
+                        currentDirection = Direction.left;
                         x1 -= BLOCK_LENGTH;
-                    }
-                    if (down) {
+                    }else if (desiredDirection == Direction.down) {
+                        currentDirection = Direction.down;
                         y1 += BLOCK_LENGTH;
-                    }
-                    if (right) {
+                    }else if (desiredDirection == Direction.right) {
+                        currentDirection = Direction.right;
                         x1 += BLOCK_LENGTH;
                     }
                     collided();
@@ -119,6 +122,16 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
         box.add(new Rectangle(width / 2 + x1, height / 2 + y1, BLOCK_LENGTH, BLOCK_LENGTH));
         box.add(new Rectangle(width / 2 - BLOCK_LENGTH, height / 2, BLOCK_LENGTH, BLOCK_LENGTH));
         box.add(new Rectangle(width / 2 - 2 * BLOCK_LENGTH, height / 2, BLOCK_LENGTH, BLOCK_LENGTH));
+        
+        try {
+            audioIn = AudioSystem.getAudioInputStream(url);
+            clip = AudioSystem.getClip();
+            clip.open(audioIn);
+        } catch (UnsupportedAudioFileException | IOException ex) {
+            ex.printStackTrace();
+        } catch (LineUnavailableException ex) {
+            Logger.getLogger(Snake.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -198,17 +211,8 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
      * @throws java.io.IOException TODO add multithreading for sound?
      */
     public void playScoreSound() throws IOException {
-        try {
-            // Open an audio input stream.
-            URL url = this.getClass().getResource("sounds/score.wav");
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
-            // Open audio clip and load samples from the audio input stream.
-            // Get a sound clip resource.
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-            clip.start();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-        }
+        clip.setFramePosition(0);
+        clip.start();
     }
 
     @Override
@@ -228,14 +232,12 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
                 gameScreen = true;
                 //easy = true;
                 DIFFICULTY = 0.1;
-            }
-            if (ke.getKeyCode() == KeyEvent.VK_2) {
+            }else if (ke.getKeyCode() == KeyEvent.VK_2) {
                 startScreen = false;
                 gameScreen = true;
                 //medium = true;
                 DIFFICULTY = 0.03;
-            }
-            if (ke.getKeyCode() == KeyEvent.VK_3) {
+            }else if (ke.getKeyCode() == KeyEvent.VK_3) {
                 startScreen = false;
                 gameScreen = true;
                 //hard = true;
@@ -247,44 +249,26 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
             //
         }
         if (gameScreen) {
-            if (ke.getKeyCode() == KeyEvent.VK_UP && !down) {
-                up = true;
-                down = false;
-                right = false;
-                left = false;
-            }
-            if (ke.getKeyCode() == KeyEvent.VK_DOWN && !up) {
-                down = true;
-                up = false;
-                right = false;
-                left = false;
-            }
-            if (ke.getKeyCode() == KeyEvent.VK_RIGHT && !left) {
-                right = true;
-                down = false;
-                up = false;
-                left = false;
-            }
-            if (ke.getKeyCode() == KeyEvent.VK_LEFT && !right) {
-                left = true;
-                down = false;
-                right = false;
-                up = false;
+            if (ke.getKeyCode() == KeyEvent.VK_UP && currentDirection != Direction.down) {
+                desiredDirection = Direction.up;
+            }else if (ke.getKeyCode() == KeyEvent.VK_DOWN && currentDirection != Direction.up) {
+                desiredDirection = Direction.down;
+            }else if (ke.getKeyCode() == KeyEvent.VK_RIGHT && currentDirection != Direction.left) {
+                desiredDirection = Direction.right;
+            }else if (ke.getKeyCode() == KeyEvent.VK_LEFT && currentDirection != Direction.right) {
+                desiredDirection = Direction.left;
             }
         }
         if (gameOver) {
             if (ke.getKeyCode() == KeyEvent.VK_R) {
                 restartGame();
-            }
-            if (ke.getKeyCode() == KeyEvent.VK_1) {
+            }else if (ke.getKeyCode() == KeyEvent.VK_1) {
                 DIFFICULTY = 0.1;
                 restartGame();
-            }
-            if (ke.getKeyCode() == KeyEvent.VK_2) {
+            }else if (ke.getKeyCode() == KeyEvent.VK_2) {
                 DIFFICULTY = 0.03;
                 restartGame();
-            }
-            if (ke.getKeyCode() == KeyEvent.VK_3) {
+            }else if (ke.getKeyCode() == KeyEvent.VK_3) {
                 DIFFICULTY = 0.0025;
                 restartGame();
             }
@@ -304,10 +288,8 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
         box.add(new Rectangle(width / 2 + x1, height / 2 + y1, BLOCK_LENGTH, BLOCK_LENGTH));
         box.add(new Rectangle(width / 2 - BLOCK_LENGTH, height / 2, BLOCK_LENGTH, BLOCK_LENGTH));
         box.add(new Rectangle(width / 2 - 2 * BLOCK_LENGTH, height / 2, BLOCK_LENGTH, BLOCK_LENGTH));
-        right = true;
-        left = false;
-        up = false;
-        down = false;
+        currentDirection = Direction.right;
+        desiredDirection = Direction.right;
     }
 
     @Override
@@ -351,5 +333,8 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
     public void mouseMoved(MouseEvent me) {
         //runs whenever the mouse is moved across the screen, same methods as mouseClicked
     }
-
+    
+    public enum Direction{
+        up, down, left, right
+    }
 }
