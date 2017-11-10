@@ -29,6 +29,7 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
     public static int tick;
     public static final int TICK = 20;
     public static final int FPS = 1000 / TICK;
+    public double DIFFICULTY = 0.1;
 
     public static int width = Toolkit.getDefaultToolkit().getScreenSize().width - (Toolkit.getDefaultToolkit().getScreenSize().width % 100);
     public static int height = Toolkit.getDefaultToolkit().getScreenSize().height - (Toolkit.getDefaultToolkit().getScreenSize().height % 100);
@@ -44,79 +45,41 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
     public boolean left = false;
     public int xEnemy = 0;
     public int yEnemy = 0;
-    public int rectWidth = 25;
+    public static final int BLOCK_LENGTH = 25;
     public Color neon = new Color(0, 255, 0);
     public int x1 = 0;
     public int y1 = 0;
     public ArrayList<Rectangle> box = new ArrayList(); //Snake
-    public Rectangle wallLeft = new Rectangle(0, 0, 25, height);
-    public Rectangle wallTop = new Rectangle(0, 0, width, 25);
-    public Rectangle wallBottom = new Rectangle(0, height - 50, width, 50);
-    public Rectangle wallRight = new Rectangle(width - 25, 0, 25, height);
+    public Rectangle wallLeft = new Rectangle(0, 0, BLOCK_LENGTH, height);
+    public Rectangle wallTop = new Rectangle(0, 0, width, BLOCK_LENGTH);
+    public Rectangle wallBottom = new Rectangle(0, height - 2*BLOCK_LENGTH, width, 2*BLOCK_LENGTH);
+    public Rectangle wallRight = new Rectangle(width - BLOCK_LENGTH, 0, BLOCK_LENGTH, height);
     public Rectangle enemyRect = new Rectangle();
     public int score = 0;
     public int highScore = 0;
-    public boolean easy = false;
-    public boolean medium = false;
-    public boolean hard = false;
     Font font = new Font("Arial", Font.BOLD, 25);
+    public static final int SCORE_TO_GROW = 2;
+    //public static final int BLOCK_LENGTH = 25;
 
     Timer timer = new Timer(20/*change to vary frequency*/, new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             tick++;
             if (gameScreen && !gameOver) {
-                if (easy) {
-                    if (tick % (FPS * 0.1) == 0) {
-                        if (up) {
-                            y1 -= 25;
-                        }
-                        if (left) {
-                            x1 -= 25;
-                        }
-                        if (down) {
-                            y1 += 25;
-                        }
-                        if (right) {
-                            x1 += 25;
-                        }
-                        collided();
+                if (tick % (FPS * DIFFICULTY) == 0) {
+                    if (up) {
+                        y1 -= BLOCK_LENGTH;
                     }
-                }
-                if (medium) {
-                    if (tick % (FPS * 0.03) == 0) {
-                        if (up) {
-                            y1 -= 25;
-                        }
-                        if (left) {
-                            x1 -= 25;
-                        }
-                        if (down) {
-                            y1 += 25;
-                        }
-                        if (right) {
-                            x1 += 25;
-                        }
-                        collided();
+                    if (left) {
+                        x1 -= BLOCK_LENGTH;
                     }
-                }
-                if (hard) {
-                    if (tick % (FPS * 0.0025) == 0) {
-                        if (up) {
-                            y1 -= 25;
-                        }
-                        if (left) {
-                            x1 -= 25;
-                        }
-                        if (down) {
-                            y1 += 25;
-                        }
-                        if (right) {
-                            x1 += 25;
-                        }
-                        collided();
+                    if (down) {
+                        y1 += BLOCK_LENGTH;
                     }
+                    if (right) {
+                        x1 += BLOCK_LENGTH;
+                    }
+                    collided();
                 }
-
             }
             //what the timer does every run through
         }
@@ -153,9 +116,9 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
         frame.addMouseMotionListener(this);
         timer.start();
         frame.setBackground(Color.black);
-        box.add(new Rectangle(width / 2 + x1, height / 2 + y1, rectWidth, rectWidth));
-        box.add(new Rectangle(width / 2 - rectWidth, height / 2, rectWidth, rectWidth));
-        box.add(new Rectangle(width / 2 - 2 * rectWidth, height / 2, rectWidth, rectWidth));
+        box.add(new Rectangle(width / 2 + x1, height / 2 + y1, BLOCK_LENGTH, BLOCK_LENGTH));
+        box.add(new Rectangle(width / 2 - BLOCK_LENGTH, height / 2, BLOCK_LENGTH, BLOCK_LENGTH));
+        box.add(new Rectangle(width / 2 - 2 * BLOCK_LENGTH, height / 2, BLOCK_LENGTH, BLOCK_LENGTH));
     }
 
     public void paint(Graphics g) {
@@ -169,25 +132,25 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
         }
         if (gameScreen) {
             gameScreenBackground(g);
-            box.get(0).setBounds(width / 2 + x1, height / 2 + y1, rectWidth, rectWidth);
+            box.get(0).setBounds(width / 2 + x1, height / 2 + y1, BLOCK_LENGTH, BLOCK_LENGTH);
             for (int i = 0; i < box.size(); i++) {
                 g.setColor(neon); //Color of snake
-                g.fillRect(box.get(i).x, box.get(i).y, rectWidth, rectWidth);
+                g.fillRect(box.get(i).x, box.get(i).y, BLOCK_LENGTH, BLOCK_LENGTH);
                 g.setColor(Color.black); //Outline of snake
-                g.drawRect(box.get(i).x, box.get(i).y, rectWidth, rectWidth);
+                g.drawRect(box.get(i).x, box.get(i).y, BLOCK_LENGTH, BLOCK_LENGTH);
             }
             if (!enemy) {
-                xEnemy = (randy.nextInt(((width - 75) / 25)) + 1) * 25;
-                yEnemy = (randy.nextInt(((height - 75) / 25)) + 1) * 25;
+                xEnemy = (randy.nextInt(((width - 3*BLOCK_LENGTH) / BLOCK_LENGTH)) + 1) * BLOCK_LENGTH;
+                yEnemy = (randy.nextInt(((height - 3*BLOCK_LENGTH) / BLOCK_LENGTH)) + 1) * BLOCK_LENGTH;
                 enemy = true;
-                if (score % 3 == 0 && score > 1) {
-                    box.add(new Rectangle(box.get(box.size() - 1).x, box.get(box.size() - 1).y, rectWidth, rectWidth));
+                if (score % SCORE_TO_GROW == 0 && score > 1) {
+                    box.add(new Rectangle(box.get(box.size() - 1).x, box.get(box.size() - 1).y, BLOCK_LENGTH, BLOCK_LENGTH));
                 }
             }
             if (enemy) {
                 g.setColor(Color.blue);
-                g.fillRect(xEnemy, yEnemy, rectWidth, rectWidth);
-                enemyRect.setBounds(xEnemy, yEnemy, rectWidth, rectWidth);
+                g.fillRect(xEnemy, yEnemy, BLOCK_LENGTH, BLOCK_LENGTH);
+                enemyRect.setBounds(xEnemy, yEnemy, BLOCK_LENGTH, BLOCK_LENGTH);
                 if (box.get(0).intersects(enemyRect)) {
                     enemy = false;
                     try {
@@ -196,12 +159,21 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
                         Logger.getLogger(Snake.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     score++;
+                    if (score > highScore) {
+                        highScore = score;
+                    }
 
                 }
             }
         } //End of game Screen
         if (gameOver) {
-            //System.out.println("Game Over");
+            gameScreenBackground(g);
+            g.setColor(neon);
+            g.drawString("Game over!", 500, 350);
+            g.drawString("Press 1 for easy", 500, 400);
+            g.drawString("Press 2 for medium", 500, 425);
+            g.drawString("Press 3 for hard", 500, 450);
+            g.drawString("If you lose, press R to restart", 500, 475);
         }
         repaint();
     }
@@ -210,19 +182,20 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
         g.setColor(Color.black);
         g.fillRect(0, 0, width, height - 25); //Background
         g.setColor(new Color(155, 48, 255));
-        g.fillRect(0, 0, width, 25); //Top Wall
-        g.fillRect(0, 0, 25, height - 25); //Left Wall 
-        g.fillRect(0, height - 50, width, 25); //Bottom Wall
-        g.fillRect(width - 25, 0, 25, height - 25); //Right Wall
+        g.fillRect(0, 0, width, BLOCK_LENGTH); //Top Wall
+        g.fillRect(0, 0, BLOCK_LENGTH, height - BLOCK_LENGTH); //Left Wall 
+        g.fillRect(0, height - 2*BLOCK_LENGTH, width, 2*BLOCK_LENGTH); //Bottom Wall
+        g.fillRect(width - BLOCK_LENGTH, 0, BLOCK_LENGTH, height - BLOCK_LENGTH); //Right Wall
         g.setColor(Color.black);
-        g.drawString("Score: " + score, rectWidth, rectWidth);
+        g.drawString("Score: " + score, BLOCK_LENGTH, BLOCK_LENGTH);
+        g.drawString("High Score: " + highScore, width - 200, BLOCK_LENGTH);
     }
-    
+
     /**
      * Play a sound for when a food piece is eaten
-     * @throws java.io.IOException
-     * TODO add multithreading for sound?
-    */
+     *
+     * @throws java.io.IOException TODO add multithreading for sound?
+     */
     public void playScoreSound() throws IOException {
         try {
             // Open an audio input stream.
@@ -252,17 +225,20 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
             if (ke.getKeyCode() == KeyEvent.VK_1) {
                 startScreen = false;
                 gameScreen = true;
-                easy = true;
+                //easy = true;
+                DIFFICULTY = 0.1;
             }
             if (ke.getKeyCode() == KeyEvent.VK_2) {
                 startScreen = false;
                 gameScreen = true;
-                medium = true;
+                //medium = true;
+                DIFFICULTY = 0.03;
             }
             if (ke.getKeyCode() == KeyEvent.VK_3) {
                 startScreen = false;
                 gameScreen = true;
-                hard = true;
+                //hard = true;
+                DIFFICULTY = 0.0025;
             }
         }
 
@@ -297,24 +273,40 @@ public class Snake extends JPanel implements KeyListener, MouseListener, MouseMo
         }
         if (gameOver) {
             if (ke.getKeyCode() == KeyEvent.VK_R) {
-                gameOver = false;
-                enemy = false;
-                if (highScore < score) {
-                    highScore = score;
-                }
-                score = 0;
-                box.clear();
-                x1 = 0;
-                y1 = 0;
-                box.add(new Rectangle(width / 2 + x1, height / 2 + y1, rectWidth, rectWidth));
-                box.add(new Rectangle(width / 2 - rectWidth, height / 2, rectWidth, rectWidth));
-                box.add(new Rectangle(width / 2 - 2 * rectWidth, height / 2, rectWidth, rectWidth));
-                right = true;
-                left = false;
-                up = false;
-                down = false;
+                restartGame();
+            }
+            if (ke.getKeyCode() == KeyEvent.VK_1) {
+                DIFFICULTY = 0.1;
+                restartGame();
+            }
+            if (ke.getKeyCode() == KeyEvent.VK_2) {
+                DIFFICULTY = 0.03;
+                restartGame();
+            }
+            if (ke.getKeyCode() == KeyEvent.VK_3) {
+                DIFFICULTY = 0.0025;
+                restartGame();
             }
         }
+    }
+
+    public void restartGame() {
+        gameOver = false;
+        enemy = false;
+        if (highScore < score) {
+            highScore = score;
+        }
+        score = 0;
+        box.clear();
+        x1 = 0;
+        y1 = 0;
+        box.add(new Rectangle(width / 2 + x1, height / 2 + y1, BLOCK_LENGTH, BLOCK_LENGTH));
+        box.add(new Rectangle(width / 2 - BLOCK_LENGTH, height / 2, BLOCK_LENGTH, BLOCK_LENGTH));
+        box.add(new Rectangle(width / 2 - 2 * BLOCK_LENGTH, height / 2, BLOCK_LENGTH, BLOCK_LENGTH));
+        right = true;
+        left = false;
+        up = false;
+        down = false;
     }
 
     @Override
