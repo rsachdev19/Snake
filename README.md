@@ -4,10 +4,10 @@ I made this project in highschool after I first started to learn how to program 
 The large majority of the code was written during the summer of 2015, with the first edits being made in the Fall of 2017.
 
 About the game:
-The objective of the game is 
+The objective of the game is to get the highest score by "eating" as many blocks as possible. The snake is controlled using arrow keys.
 
 About the code:
-The game is mading using javax.swing and java.awt. I may try to recreate the game in JavaFX in the future.
+The game is made using javax.swing and java.awt. I may try to recreate the game in JavaFX in the future.
 The  code is entirely contained within one Java file, Snake.java, as I had not yet learned about Objects when I first started the project.
 
 ToDo List:
