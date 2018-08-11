@@ -1,5 +1,6 @@
 # Snake
-About this project: This is a project by me(Ravjot Sachdev). This is a recreation of the classic game Snake.
+#### About this project:
+This is a project by me(Ravjot Sachdev). This is a recreation of the classic game Snake.
 I made this project in highschool after I first started to learn how to program to practice certain Java principles.
 The large majority of the code was written during the summer of 2015, with the first edits being made in the Fall of 2017.
 
